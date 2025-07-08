@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/elasticsearch-practice
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: mysql
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  elasticsearch:
+    uris: http://localhost:9200
