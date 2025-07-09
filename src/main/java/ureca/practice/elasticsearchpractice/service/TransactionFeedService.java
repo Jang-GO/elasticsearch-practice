@@ -1,9 +1,9 @@
 package ureca.practice.elasticsearchpractice.service;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,15 +20,22 @@ import ureca.practice.elasticsearchpractice.entity.TransactionFeed;
 import ureca.practice.elasticsearchpractice.repository.TransactionFeedRepository;
 import ureca.practice.elasticsearchpractice.repository.TransactionFeedSearchRepository;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionFeedService {
 
     private final TransactionFeedRepository feedRepository;
     private final TransactionFeedSearchRepository searchRepository;
     private final ElasticsearchOperations elasticsearchOperations;
+
+    // "5gb", "5 GB", "5기가" 등을 모두 잡아내기 위한 정규식
+    private static final Pattern DATA_PATTERN = Pattern.compile("(\\d+)\\s*(gb|기가|GB|mb|MB|메가)", Pattern.CASE_INSENSITIVE);
+
 
     // --- CRUD ---
 
@@ -84,31 +91,46 @@ public class TransactionFeedService {
             return Page.empty(pageable);
         }
 
+        // 1) "5gb, 500mb" 패턴 추출 → 쿼리 문자열에서 제거
+        Matcher m = DATA_PATTERN.matcher(rawQuery);
+        Long dataSizeMB = null;
+        if (m.find()) {
+            long size = Long.parseLong(m.group(1));
+            String unit = m.group(2).toLowerCase();
+            if (unit.matches("gb|기가")) {
+                dataSizeMB = size * 1000L;
+            } else {
+                dataSizeMB = size;
+            }
+//            rawQuery = m.replaceAll("").trim();
+        }
+        final String queryText = rawQuery;
+
         // 여러 조건을 조합하기 위해 BoolQuery.Builder를 사용합니다.
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+
 
         // 1. 텍스트 필드에 대한 multi_match 쿼리 (항상 실행)
         // 'should'는 OR 조건과 유사하게 동작하며, 많이 일치할수록 점수가 높아집니다.
         boolQueryBuilder.should(s -> s
                 .multiMatch(mm -> mm
-                        .query(rawQuery)
+                        .query(queryText)
                         .fields("title^3", "content", "sellerIdText", "telecomCompanyText") // 제목에는 3배의 가중치 부여
                         .type(TextQueryType.BestFields)
                 )
         );
+        log.info("👽👽텍스트");
 
-        // 2. 숫자 필드에 대한 term 쿼리 (검색어가 숫자로 변환될 때만 추가)
-        try {
-            Integer numericQuery = Integer.parseInt(rawQuery.trim());
-            boolQueryBuilder.should(s -> s
-                    .term(t -> t
-                            .field("salesDataAmount")
-                            .value(numericQuery)
-                            .boost(2.0f) // 숫자가 정확히 일치하면 가중치 2배 부여
-                    )
-            );
-        } catch (NumberFormatException e) {
-            // 검색어가 숫자가 아니면 이 부분은 조용히 무시됩니다.
+        if (dataSizeMB != null) {
+            long filterValue = dataSizeMB;
+            boolQueryBuilder.filter(f -> f.term(t -> t
+                    .field("salesDataAmount")
+                    .value(filterValue)
+                    .boost(2.0f)
+            ));
+
+            log.info("👽👽숫자");
+
         }
 
         // 3. 최종 쿼리 빌드
