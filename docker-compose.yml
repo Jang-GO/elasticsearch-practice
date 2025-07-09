@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    # 현재 경로의 Dockerfile을 사용하여 이미지를 빌드합니다.
+    build: .
+    container_name: elasticsearch-nori
+    ports:
+      # 로컬 PC의 9200 포트와 컨테이너의 9200 포트를 연결합니다.
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      # 단일 노드로 실행하기 위한 설정입니다.
+      - discovery.type=single-node
+      # HTTP 통신을 위해 보안 기능을 비활성화합니다.
+      - xpack.security.enabled=false
+      # Elasticsearch가 사용하는 메모리(힙) 크기를 설정합니다. (개발 환경에서는 1GB 정도를 권장합니다.)
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      # 데이터 영속성을 위해 Docker 볼륨을 사용합니다.
+      # 이렇게 하면 컨테이너를 내려도 데이터가 유지됩니다.
+      - esdata:/usr/share/elasticsearch/data
+
+# 데이터 저장을 위한 Docker 볼륨을 정의합니다.
+volumes:
+  esdata:
+    driver: local

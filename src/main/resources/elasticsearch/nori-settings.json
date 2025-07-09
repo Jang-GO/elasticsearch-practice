@@ -5,17 +5,21 @@
         "type": "custom",
         "tokenizer": "nori_tokenizer",
         "filter": [
-          "nori_part_of_speech",
-          "nori_readingform",
           "lowercase",
+          "nori_readingform",
           "synonym_filter"
         ]
       }
     },
     "filter": {
       "synonym_filter": {
-        "type": "synonym_graph",
-        "synonyms_path": "analysis/telecom_synonyms.txt"
+        "type": "synonym",
+        "synonyms": [
+          "SKT, skt, 에스케이티, 스크",
+          "KT, kt, 케이티",
+          "LGU, lgu, 유플러스, 엘지유플러스, 엘지",
+          "기가, GB, gb"
+        ]
       }
     }
   }
