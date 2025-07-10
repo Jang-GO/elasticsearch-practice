@@ -35,7 +35,7 @@ public class DummyDataInit implements CommandLineRunner {
                 TransactionFeed.builder().sellerId("데이터판매왕").telecomCompanyId("SKT").title("SKT 10GB 데이터 팝니다").content("SKT 데이터 10기가 저렴하게 팔아요.").salesPrice(18000L).salesDataAmount(10000).progress("SELLING").build(),
                 TransactionFeed.builder().sellerId("데이터요정").telecomCompanyId("SKT").title("SKT 2기가 데이터 선물용").content("SKT 2GB 선물하실 분 구해요. 바로 거래 가능합니다.").salesPrice(3800L).salesDataAmount(2000).progress("SELLING").build(),
                 TransactionFeed.builder().sellerId("빠른거래").telecomCompanyId("SKT").title("SKT 500MB 소량 데이터 급처").content("500메가 급하게 처분합니다. 1000원에 드려요").salesPrice(1000L).salesDataAmount(500).progress("SELLING").build(),
-                TransactionFeed.builder().sellerId("데이터판매왕").telecomCompanyId("SKT").title("SKT 1기가 데이터 판매 완료").content("거래 완료된 게시글입니다.").salesPrice(2000L).salesDataAmount(1000).progress("SOLD_OUT").build(),
+                TransactionFeed.builder().sellerId("데이터판매왕").telecomCompanyId("SKT").title("하하하하").content("거래 완료된 게시글입니다.").salesPrice(2000L).salesDataAmount(1000).progress("SOLD_OUT").build(),
                 TransactionFeed.builder().sellerId("SKT만세").telecomCompanyId("SKT").title("SKT 데이터 5GB 예약중").content("5기가 예약되었습니다. 구매 확정 대기중").salesPrice(9500L).salesDataAmount(5000).progress("RESERVED").build(),
 
                 // KT 데이터

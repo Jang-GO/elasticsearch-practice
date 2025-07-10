@@ -84,7 +84,6 @@ public class TransactionFeedService {
     }
 
     // --- Search ---
-
     @Transactional(readOnly = true)
     public Page<FeedDto.Response> unifiedSearch(String rawQuery, Pageable pageable) {
         if (!StringUtils.hasText(rawQuery)) {
@@ -104,7 +103,6 @@ public class TransactionFeedService {
 
             // 1. 검색어가 통신사 이름인 경우 (가장 먼저 확인)
             if (TELECOM_COMPANIES.contains(word)) {
-                // telecomCompanyText.keyword 필드와 정확히 일치하는 것을 '반드시' 포함 (must)
                 boolQueryBuilder.must(z -> z.term(t -> t
                         .field("telecomCompanyId") // .keyword 필드 사용
                         .value(word)
